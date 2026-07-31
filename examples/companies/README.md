@@ -10,6 +10,25 @@ python with_matchlab.py
 python by_hand.py         # identical output
 ```
 
+## Start here if it's your first time
+
+`step_by_step.py` builds a plan one step at a time over two of the four sources,
+stopping after each to show what that step produced. It's the file to read — or teach
+from — before the two above, which build their pipelines in one go.
+
+```shell
+python step_by_step.py                    # pauses between beats at a terminal
+python step_by_step.py --no-pause         # straight through
+python step_by_step.py --store run.duckdb # then run it again: every step is cached
+```
+
+It's also the reintroduction for anyone who used Matchbox: notes marked `Matchbox →`
+say what the old API called each thing, and why it changed. Lines marked `?` are open
+design questions with no settled answer — if you're being taught from this file, your
+first reaction to them is the thing worth writing down.
+
+## Four sources, two ways
+
 `by_hand.py` is meant to be a fair opponent, not a strawman. It uses the same matching
 rule, idiomatic Polars, and a union-find that handles the cases that matter. A test
 (`test/test_examples.py`) asserts the two agree, so this comparison can't quietly rot.

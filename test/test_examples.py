@@ -29,11 +29,12 @@ def built_warehouse(
     them and wrong for a test suite running in parallel.
     """
     import by_hand  # noqa: PLC0415
+    import step_by_step  # noqa: PLC0415
     import warehouse  # noqa: PLC0415
     import with_matchlab  # noqa: PLC0415
 
     db = tmp_path / "warehouse.sqlite"
-    for module in (warehouse, by_hand, with_matchlab):
+    for module in (warehouse, by_hand, with_matchlab, step_by_step):
         monkeypatch.setattr(module, "DB", db)
     warehouse.build()
 
@@ -54,6 +55,35 @@ def test_both_pipelines_resolve_identically(built_warehouse: None) -> None:
         from_matchlab.setdefault(row["root"], set()).add(row["key"])
 
     assert _as_groups(from_matchlab) == _as_groups(by_hand.resolve())
+
+
+def test_the_teaching_example_runs_and_is_correct(built_warehouse: None) -> None:
+    """`step_by_step.py` is taught from, so it has to run and be right.
+
+    It covers two of the four sources, so it resolves 14 records into 8 entities —
+    one per real company that `crn` or `dh` has heard of, and no over-merging.
+    """
+    import step_by_step  # noqa: PLC0415
+    import warehouse  # noqa: PLC0415
+
+    from matchlab import set_default_adapter  # noqa: PLC0415
+    from matchlab.adapters import DuckDBAdapter  # noqa: PLC0415
+
+    set_default_adapter(DuckDBAdapter(":memory:"))
+    try:
+        companies = step_by_step.main()
+    finally:
+        set_default_adapter(None)
+
+    truth = warehouse.truth()
+    groups: dict[int, set[str]] = {}
+    for row in companies.entities().iter_rows(named=True):
+        groups.setdefault(row["root"], set()).add(row["key"])
+
+    for keys in groups.values():
+        assert len({truth[key] for key in keys}) == 1, keys
+
+    assert len(groups) == 8
 
 
 def test_the_answer_is_precise_against_known_truth(built_warehouse: None) -> None:
