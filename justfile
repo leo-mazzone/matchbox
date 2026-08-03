@@ -2,6 +2,10 @@
 test *ARGS:
     uv run pytest {{ARGS}}
 
+# Run the benchmark suite
+bench *ARGS:
+    uv run python -m benchmarks {{ARGS}}
+
 # Delete all compiled Python files
 clean:
     find . -type f -name "*.py[co]" -delete

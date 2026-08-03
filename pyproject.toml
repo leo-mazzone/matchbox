@@ -77,8 +77,8 @@ exclude = [
 line-length = 88
 indent-width = 4
 target-version = "py311"
-src = ["src"]
-
+# Ensure benchmark is treated as a first-party in imports
+src = ["src", "."]
 [tool.ruff.lint]
 select = [
     "E",
@@ -110,8 +110,8 @@ allow-star-arg-any = true
 # Adapter methods inherit their docstrings from the Adapter ABC, which
 # griffe-inherited-docstrings renders into the docs.
 "src/matchlab/adapters/*" = ["D102"]
-# Examples should read like something a user would write, not like library code.
-"examples/**" = ["ANN", "D", "T201"]
+# Benchmark code allows printing
+"benchmarks/**" = ["T201"]
 
 [tool.ruff.format]
 quote-style = "double"
