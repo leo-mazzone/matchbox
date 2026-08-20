@@ -217,9 +217,12 @@ class SplinkLinker(Linker):
         self._id_dtype_l = left[self.left_id].dtype
         self._id_dtype_r = right[self.right_id].dtype
 
-        if (set(left.columns) != set(right.columns)) or not left.dtypes == right.dtypes:
+        if set(left.columns) != set(right.columns):
             raise self._conformancy_error(left, right)
-
+        if left.columns != right.columns:
+            right = right.select(left.columns)
+        if left.dtypes != right.dtypes:
+            raise self._conformancy_error(left, right)
         # Convert to pandas for Splink compatibility
         left_pd = left.with_columns(pl.col(self.left_id).cast(pl.String)).to_pandas()
         right_pd = right.with_columns(pl.col(self.right_id).cast(pl.String)).to_pandas()
